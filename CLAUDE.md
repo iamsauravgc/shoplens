@@ -44,6 +44,8 @@ Every choice below has a reason. Learn the one-line reason — that's what you s
 
 **Backend:** FastAPI (async, handles slow I/O without blocking) + Redis + RQ (background job queue, user gets a `job_id` and polls) + PostgreSQL/Supabase (relational: zones → analytics → reports).
 
+**MLflow:** local tracking in Colab notebooks only. Trained model exported and saved to backend/models/. MLflow registry not deployed — export best model as .pth file.
+
 **LLM:** Groq API free tier (Llama-3.3-70B). Not Ollama — Railway can't run it. Fast, free, no GPU.
 
 **Frontend:** React (canvas-based zone drawing needs it — Streamlit can't do this) + Recharts + Fabric.js.
@@ -108,10 +110,10 @@ The full plan with every daily task is in `epics.md` — read it before starting
 - [ ] **Epic 3 — Zone System (Week 3):** Fabric.js zone drawing UI, zones in Supabase, per-zone visitors/dwell/peak hour
 - [ ] **Epic 4 — Heatmap (Week 4):** Gaussian heatmap PNG + morning/afternoon/evening segments, FastAPI endpoint, React display
 - [ ] **Epic 5-6 — Anomaly Detection (Weeks 5-6):** autoencoder trained on normal movement, MLflow-tracked, 3 anomaly types (loitering, crowd spike, zone avoidance), precision/recall
-- [ ] **Epic 6 — LLM Report (Week 7):** Groq prompt template → specific actionable insights, `POST /reports/generate`, downloadable report
-- [ ] **Epic 7 — Backend + Job Queue (Week 8):** full pipeline as one RQ job with progress, 5 endpoints, React progress bar polling every 3s
-- [ ] **Epic 8 — Deployment (Week 9):** Supabase + R2 setup, Railway backend, Vercel frontend, 5 test videos end-to-end
-- [ ] **Epic 9 — Evaluation + Docs (Week 10):** results table (MAE/MSE, ID switch rate, precision/recall), demo video <3 min, README, technical report
+- [ ] **Epic 7 — LLM Report (Week 7):** Groq prompt template → specific actionable insights, `POST /reports/generate`, downloadable report
+- [ ] **Epic 8 — Backend + Job Queue (Week 8):** full pipeline as one RQ job with progress, 5 endpoints, React progress bar polling every 3s
+- [ ] **Epic 9 — Deployment (Week 9):** Supabase + R2 setup, Railway backend, Vercel frontend, 5 test videos end-to-end
+- [ ] **Epic 10 — Evaluation + Docs (Week 10):** results table (MAE/MSE, ID switch rate, precision/recall), demo video <3 min, README, technical report
 
 ## File structure (target repo layout)
 

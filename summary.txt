@@ -1,0 +1,59 @@
+EPIC 1 — DETECTION ACCURACY SUMMARY
+=====================================
+Dataset:          Mall Dataset (CUHK), 2000 frames
+Model:            YOLOv8n (pretrained on COCO, CPU inference)
+Best threshold:   0.1
+
+Metrics (all 2000 frames):
+  MAE:            5.71 people/frame
+  RMSE:           6.82
+  Max error:      21 people
+  Exact matches:  87/2000 (4.3%)
+
+Known failure cases:
+  - Heavy occlusion (people overlapping) causes under-detection
+  - Top-down camera angle vs COCO training data (eye-level) reduces confidence
+  - Distant/small persons (top of frame) missed at higher thresholds
+
+Why this threshold (0.1):
+  Tested 7 thresholds (0.10-0.40) on 50-frame sample.
+  0.1 gave lowest MAE. See threshold_vs_error.png.
+
+Output files (in Google Drive/shoplens/):
+  detection_results.csv         full results per frame
+  gt_visualization.png          GT head positions on sample frames
+  gt_distribution.png           GT count distribution
+  threshold_vs_error.png        threshold tuning chart
+  detection_final_results.png   detected vs GT, error over time
+  failure_cases.png             3 worst-performing frames
+
+
+TRACKING SUMMARY
+================
+Dataset:        Mall Dataset (CUHK), frames 1-200
+Detector:       YOLOv8n, conf=0.1
+Tracker:        DeepSORT
+
+Best parameters:
+  max_age:      50
+  n_init:       5
+
+Results (200 frames):
+  Unique IDs (baseline max_age=30, n_init=3): 208
+  Unique IDs (best config):                   103
+  Reduction in ID switches:                   105
+
+Why fewer unique IDs = better:
+  Each re-assignment of a new ID to the same physical person
+  is an ID switch. Fewer total IDs across the same 200 frames
+  means the tracker kept the same person under the same ID longer.
+
+Known limitations:
+  - Occlusion (people overlapping) causes temporary ID loss
+  - Top-down angle reduces appearance embedding quality
+  - DeepSORT re-assigns a new ID when a person re-enters after max_age frames
+...
+  trajectories.png              all movement paths overlaid
+  trajectories.json             track data for Epic 3
+
+Saved: epic2_summary.txt

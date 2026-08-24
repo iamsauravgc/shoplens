@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+
+node_modules/
+dist/
+.vite/
+
+backend/models/*.pth
+backend/models/*.joblib
+
+*.mp4
+mall_dataset/
+mall_dataset.zip
+.ipynb_checkpoints/

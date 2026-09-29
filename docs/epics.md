@@ -32,7 +32,7 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 
 **Day 5**
 - [x] Run on all 2000 frames
-- [x] Save results to CSV: `frame_id, detected_count, gt_count, mae` — *`shoplens_drive/detection_results.csv`, 2000 rows; per-frame `error` column carries mae (`mae` = mean of `error`), plus `conf`*
+- [x] Save results to CSV: `frame_id, detected_count, gt_count, mae` — *`docs/evidence/detection_results.csv`, 2000 rows; per-frame `error` column carries mae (`mae` = mean of `error`), plus `conf`*
 - [x] Write brief summary: detection accuracy, failure cases, findings
 
 **Week 1 output:** Colab notebook + CSV with detection results + accuracy metrics
@@ -41,7 +41,7 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 - [x] YOLOv8 runs on all 2000 Mall Dataset frames — *`detection_results.csv` has 2000 rows*
 - [x] CSV saved with `frame_id, detected_count, gt_count, mae` — *see column note above*
 - [x] MAE/MSE computed and documented in a threshold-vs-MAE table — *7 thresholds, best `conf=0.1` MAE 5.88; full run MAE 5.71 / RMSE 6.82*
-- [x] Accuracy summary written (failure cases, findings) — *`shoplens_guide.md` § Failure Analysis + `shoplens_drive/failure_cases.png`*
+- [x] Accuracy summary written (failure cases, findings) — *`shoplens_guide.md` § Failure Analysis + `docs/evidence/failure_cases.png`*
 - [x] Colab notebook is reproducible from scratch — *`notebooks/detection.ipynb`*
 
 ---
@@ -77,7 +77,7 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 **Week 2 output:** Tracking pipeline + annotated video + trajectory JSON
 
 **Definition of Done**
-- [x] Annotated video with ID labels exported via `VideoWriter` — *`shoplens_drive/tracking_annotated.mp4` (12 MB)*
+- [x] Annotated video with ID labels exported via `VideoWriter` — *`docs/evidence/tracking_annotated.mp4` (12 MB)*
 - [x] Trajectories saved to JSON — *`data/trajectories.json`*
 - [x] ID switch count measured before and after tuning (documented comparison) — *baseline 208 / best 103 over 200 frames → `code_walkthrough.md`*
 - [x] Unique visitor count extracted from 200+ frames — *200-frame run, 208 baseline / 103 tuned*

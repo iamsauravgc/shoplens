@@ -21,7 +21,7 @@ class Settings:
 
 def load_settings() -> Settings:
     return Settings(
-        db_path=Path(os.environ.get("DATABASE_PATH", REPO_ROOT / "shoplens.db")),
+        db_path=Path(os.environ.get("DATABASE_PATH", REPO_ROOT / "data" / "shoplens.db")),
         storage_dir=Path(os.environ.get("STORAGE_DIR", REPO_ROOT / "storage")),
         data_dir=Path(os.environ.get("DATA_DIR", REPO_ROOT / "data")),
         models_dir=Path(os.environ.get("MODELS_DIR", REPO_ROOT / "backend" / "models")),

@@ -20,6 +20,9 @@ mall_dataset.zip
 shoplens.db
 backend/mlflow.db
 
+# submission document, kept out of the repo on purpose
+project.pdf
+
 # generated artifacts (recreate with scripts + notebook)
 backend/mlruns/
 backend/logs/

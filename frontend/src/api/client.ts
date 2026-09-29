@@ -1,4 +1,4 @@
-import type { AnalyticsResponse, JobProgress, ReportData, UploadResponse } from "../types";
+import type { AnalyticsResponse, JobProgress, JobSummary, ReportData, UploadResponse, ZoneDef } from "../types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "/api";
 
@@ -55,4 +55,32 @@ export function generateReport(jobId: string): Promise<ReportData> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ video_id: jobId }),
   });
+}
+
+export function listZones(): Promise<ZoneDef[]> {
+  return request("/zones");
+}
+
+export async function listJobs(limit = 10): Promise<JobSummary[]> {
+  const res = await request<{ jobs: JobSummary[] }>(`/jobs?limit=${limit}`);
+  return res.jobs;
+}
+
+export function saveZone(zone: { name: string; polygon: { x: number; y: number }[] }): Promise<ZoneDef> {
+  return request("/zones", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(zone),
+  });
+}
+
+export async function deleteZone(zoneId: string): Promise<void> {
+  const res = await fetch(`${BASE}/zones/${zoneId}`, { method: "DELETE" });
+  if (!res.ok && res.status !== 204) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
+}
+
+export function zoneFrameUrl(): string {
+  return `${BASE}/zones/frame`;
 }

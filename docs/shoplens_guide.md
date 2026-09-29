@@ -336,6 +336,22 @@ Result: **0.1 won** — even at the lowest threshold, the model under-detects. R
 bar makes it worse, not better. This confirms the top-down angle is the real problem,
 not false positives.
 
+**Threshold-vs-MAE table** (7 thresholds × 50 sampled frames):
+
+| conf | MAE (people/frame) | RMSE | exact frames |
+|------|--------------------|------|--------------|
+| **0.10** | **5.88** | **6.75** | **2/50** |
+| 0.15 | 9.36 | 10.36 | 1/50 |
+| 0.20 | 12.10 | 12.87 | 0/50 |
+| 0.25 | 13.46 | 14.09 | 0/50 |
+| 0.30 | 14.40 | 14.97 | 0/50 |
+| 0.35 | 15.60 | 16.23 | 0/50 |
+| 0.40 | 16.76 | 17.40 | 0/50 |
+
+MAE climbs monotonically with confidence — every frame where we raise the bar, fewer
+people are counted, and the under-detection gets worse. `conf=0.1` is used for the full
+2000-frame run: **MAE 5.71 people/frame, RMSE 6.82**.
+
 ---
 
 ## Cell: Full Run — 2000 Frames

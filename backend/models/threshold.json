@@ -1,0 +1,7 @@
+{
+  "threshold": 1.1199686527252197,
+  "percentile": 95,
+  "train_error_p95": 1.1199686527252197,
+  "test_error_p95": 1.1654026210308075,
+  "train_rows": 341
+}

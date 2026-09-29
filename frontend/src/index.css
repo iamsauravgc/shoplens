@@ -85,3 +85,161 @@ input[type="text"] {
 pre {
   white-space: pre-wrap;
 }
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.app-header h1 {
+  margin-bottom: 0.25rem;
+}
+
+nav button {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+button.active {
+  outline: 2px solid var(--accent);
+}
+
+button.danger {
+  background: transparent;
+  border: 1px solid #f87171;
+  color: #f87171;
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  margin-left: 0.75rem;
+  margin-right: 0;
+}
+
+.status {
+  margin-top: 0.75rem;
+}
+
+.progress-label {
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.dashboard section {
+  margin-bottom: 1.25rem;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.zone-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.75rem;
+  font-size: 0.92rem;
+}
+
+.zone-table th,
+.zone-table td {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.zone-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Fabric adds a transparent "upper" interaction canvas on top of the frame, so
+   the frame styling belongs on the container — styling both canvases with an
+   opaque background would black out the image */
+.zone-canvas {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 100%;
+  margin-top: 0.75rem;
+  background: #000;
+  overflow: hidden;
+}
+
+.zone-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+
+.zone-toolbar input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.45rem 0.7rem;
+  margin-right: 0;
+}
+
+.zone-list {
+  list-style: none;
+  padding: 0;
+}
+
+.zone-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.zone-list button {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.zone-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}

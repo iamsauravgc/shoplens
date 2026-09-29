@@ -105,11 +105,11 @@ When building the video processing pipeline, follow this order and these rules:
 
 The full plan with every daily task is in `epics.md` — read it before starting any epic. Claude's job is to help the student tick the boxes, one epic at a time, in order:
 
-- [ ] **Epic 1 — Detection (Week 1):** YOLOv8 on all 2000 Mall Dataset frames, MAE/MSE vs ground truth, threshold-vs-MAE table
-- [ ] **Epic 2 — Tracking (Week 2):** DeepSORT with unique IDs, annotated video via `VideoWriter`, trajectory JSON, ID-switch tuning
-- [ ] **Epic 3 — Zone System (Week 3):** Fabric.js zone drawing UI, zones in Supabase, per-zone visitors/dwell/peak hour
-- [ ] **Epic 4 — Heatmap (Week 4):** Gaussian heatmap PNG + morning/afternoon/evening segments, FastAPI endpoint, React display
-- [ ] **Epic 5-6 — Anomaly Detection (Weeks 5-6):** autoencoder trained on normal movement, MLflow-tracked, 3 anomaly types (loitering, crowd spike, zone avoidance), precision/recall
+- [x] **Epic 1 — Detection (Week 1):** YOLOv8 on all 2000 Mall Dataset frames, MAE/MSE vs ground truth, threshold-vs-MAE table
+- [x] **Epic 2 — Tracking (Week 2):** DeepSORT with unique IDs, annotated video via `VideoWriter`, trajectory JSON, ID-switch tuning
+- [x] **Epic 3 — Zone System (Week 3):** Fabric.js zone drawing UI, zones in Supabase, per-zone visitors/dwell/peak hour
+- [x] **Epic 4 — Heatmap (Week 4):** Gaussian heatmap PNG + morning/afternoon/evening segments, FastAPI endpoint, React display
+- [x] **Epic 5-6 — Anomaly Detection (Weeks 5-6):** autoencoder trained on normal movement, MLflow-tracked, 3 anomaly types (loitering, crowd spike, zone avoidance), precision/recall
 - [ ] **Epic 7 — LLM Report (Week 7):** Groq prompt template → specific actionable insights, `POST /reports/generate`, downloadable report
 - [ ] **Epic 8 — Backend + Job Queue (Week 8):** full pipeline as one RQ job with progress, 5 endpoints, React progress bar polling every 3s
 - [ ] **Epic 9 — Deployment (Week 9):** Supabase + R2 setup, Railway backend, Vercel frontend, 5 test videos end-to-end

@@ -17,7 +17,9 @@ export default function ProgressBar({ jobId, onComplete }: Props) {
       if (!cancelled) setProgress(p);
     })
       .then((final) => {
-        if (!cancelled && final.state === "complete") onComplete();
+        if (cancelled) return;
+        if (final.state === "complete") onComplete();
+        else if (final.state === "failed") setError(final.message || "Processing failed");
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(err instanceof Error ? err.message : String(err));

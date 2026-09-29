@@ -1,14 +1,25 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import db
 from app.config import get_settings
-from app.routes import analytics, heatmap, report, status, upload
+from app.jobs import resume_unfinished
+from app.routes import analytics, heatmap, jobs, report, status, upload, zones
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="ShopLens API")
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # a --reload restart kills in-flight pipeline threads; pick them back up
+    resume_unfinished()
+    yield
+
+
+app = FastAPI(title="ShopLens API", lifespan=lifespan)
 
 settings = get_settings()
 
@@ -21,31 +32,13 @@ app.add_middleware(
 
 app.include_router(upload.router)
 app.include_router(status.router)
+app.include_router(jobs.router)
 app.include_router(analytics.router)
 app.include_router(heatmap.router)
 app.include_router(report.router)
+app.include_router(zones.router)
 
 
 @app.get("/health")
 def health():
-    return {"ok": True, "redis": _ping_redis()}
-
-
-def _ping_redis() -> bool:
-    try:
-        from app.config import get_redis
-
-        get_redis().ping()
-        return True
-    except Exception:
-        return False
-
-
-@app.on_event("shutdown")
-def close_redis():
-    try:
-        from app.config import get_redis
-
-        get_redis().close()
-    except Exception:
-        pass
+    return {"ok": True, "db": db.db_ok()}

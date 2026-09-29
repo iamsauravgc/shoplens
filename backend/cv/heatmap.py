@@ -8,11 +8,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-TIME_SEGMENTS = {
-    "morning": (9, 12),
-    "afternoon": (12, 17),
-    "evening": (17, 21),
-}
+HEATMAP_SEGMENTS = ("full", "morning", "afternoon", "evening")
 
 
 def _add_gaussian_blob(heat: np.ndarray, cx: float, cy: float, sigma: float) -> None:
@@ -55,13 +51,57 @@ def export_png(image_bgr: np.ndarray, path: str | Path) -> Path:
     return path
 
 
-def segment_key_for_timestamp(timestamp_hour: float) -> str:
-    # TODO(epic-4 day 3): Mall Dataset has no wall-clock time — decide the mapping used for
-    # time-segmented heatmaps (e.g. split video duration into thirds) and document it
-    for name, (lo, hi) in TIME_SEGMENTS.items():
-        if lo <= timestamp_hour < hi:
-            return name
-    return "full"
+# distinct from the JET colormap so outlines stay readable on hot areas
+ZONE_COLORS = [(255, 0, 255), (255, 128, 0), (0, 255, 128), (255, 255, 0), (128, 0, 255), (0, 255, 255)]
+
+
+def overlay_zones(image_bgr: np.ndarray, zones) -> np.ndarray:
+    """Draw saved zone polygons on a frame with OpenCV (Epic 3, day 2)."""
+    for i, zone in enumerate(zones):
+        pts = np.array([(int(p[0]), int(p[1])) for p in zone.polygon], dtype=np.int32)
+        if len(pts) < 3:
+            continue
+        color = ZONE_COLORS[i % len(ZONE_COLORS)]
+        fill = image_bgr.copy()
+        cv2.fillPoly(fill, [pts], color)
+        cv2.addWeighted(fill, 0.15, image_bgr, 0.85, 0, image_bgr)
+        cv2.polylines(image_bgr, [pts], True, color, 2, cv2.LINE_AA)
+        x, y = int(pts[:, 0].min()), int(pts[:, 1].min())
+        (tw, th), _ = cv2.getTextSize(zone.name, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 1)
+        x = min(x, image_bgr.shape[1] - tw - 8)  # keep the label inside the frame
+        y = min(y, image_bgr.shape[0] - th - 8)
+        x, y = max(x, 0), max(y, 0)
+        cv2.rectangle(image_bgr, (x, y), (x + tw + 6, y + th + 8), (0, 0, 0), -1)
+        cv2.putText(
+            image_bgr, zone.name, (x + 3, y + th + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 1, cv2.LINE_AA
+        )
+    return image_bgr
+
+
+def split_positions_by_segment(
+    positions_with_frames: list[tuple[int, tuple[float, float]]],
+) -> dict[str, list[tuple[float, float]]]:
+    """Clip-relative thirds map to morning/afternoon/evening.
+
+    CCTV footage has no wall-clock time, so each segment is a third of the clip's
+    frame span. Documented as a design decision in README.
+    """
+    out: dict[str, list[tuple[float, float]]] = {s: [] for s in HEATMAP_SEGMENTS}
+    if not positions_with_frames:
+        return out
+    frames = [f for f, _ in positions_with_frames]
+    lo, hi = min(frames), max(frames)
+    span = max(hi - lo, 1)
+    for frame_idx, pos in positions_with_frames:
+        out["full"].append(pos)
+        t = (frame_idx - lo) / span
+        if t < 1 / 3:
+            out["morning"].append(pos)
+        elif t < 2 / 3:
+            out["afternoon"].append(pos)
+        else:
+            out["evening"].append(pos)
+    return out
 
 
 def heatmap_response_path(job_id: str, segment: str) -> str:

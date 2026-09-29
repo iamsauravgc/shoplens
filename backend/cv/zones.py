@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 import cv2
 import numpy as np
@@ -94,7 +95,26 @@ def summarize_zones(visits: list[ZoneVisit], all_zones: list[Zone] | None = None
     return summary
 
 
-def peak_hour_per_zone(visits: list[ZoneVisit], video_started_at) -> dict:
-    # TODO(epic-3 day 5): map each visit's entry frame to wall-clock time using video_started_at,
-    # bucket into hours, return {zone_id: peak_hour}
-    raise NotImplementedError("Epic 3 Day 5")
+def peak_hour_per_zone(visits: list[ZoneVisit], video_started_at, fps: float = 30.0) -> dict[str, int]:
+    """{zone_id: hour-of-day (0-23) with the most visits}. Wall clock = video start time + frame offset."""
+    if video_started_at is None:
+        return {}
+    if isinstance(video_started_at, str):
+        try:
+            video_started_at = datetime.fromisoformat(video_started_at)
+        except ValueError:
+            return {}
+    if video_started_at.tzinfo is not None:
+        video_started_at = video_started_at.astimezone().replace(tzinfo=None)
+
+    hours_by_zone: dict[str, dict[int, int]] = {}
+    for v in visits:
+        seconds = v.entry_frame / fps if fps else 0.0
+        hour = (video_started_at + timedelta(seconds=seconds)).hour
+        hours_by_zone.setdefault(v.zone_id, {}).setdefault(hour, 0)
+        hours_by_zone[v.zone_id][hour] += 1
+
+    return {
+        zone_id: max(counts.items(), key=lambda item: item[1])[0]
+        for zone_id, counts in hours_by_zone.items()
+    }

@@ -15,3 +15,16 @@ backend/models/*.joblib
 mall_dataset/
 mall_dataset.zip
 .ipynb_checkpoints/
+
+# local databases / runtime state
+shoplens.db
+backend/mlflow.db
+
+# generated artifacts (recreate with scripts + notebook)
+backend/mlruns/
+backend/logs/
+frontend/logs/
+backend/yolov8n.pt
+storage/heatmaps/
+data/mall_positions.json
+data/trajectories.json

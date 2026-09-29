@@ -1,0 +1,11 @@
+{
+  "precision": 0.419,
+  "recall": 0.52,
+  "f1": 0.464,
+  "true_positives": 13,
+  "false_positives": 18,
+  "false_negatives": 12,
+  "labeled_rows": 86,
+  "positives_in_labels": 25,
+  "flagged_by_model": 31
+}

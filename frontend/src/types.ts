@@ -1,4 +1,4 @@
-export type AnomalyType = "loitering" | "crowd_spike" | "zone_avoidance";
+export type AnomalyType = "loitering" | "crowd_spike" | "zone_avoidance" | "autoencoder";
 
 export interface ZoneDef {
   id?: string;
@@ -11,6 +11,7 @@ export interface ZoneSummary {
   unique_visitors: number;
   total_visits: number;
   avg_dwell_seconds: number;
+  peak_hour?: number;
 }
 
 export interface AnomalyEvent {
@@ -25,9 +26,12 @@ export interface AnalyticsResponse {
   video_id: string;
   frames_processed?: number;
   unique_visitors?: number;
+  zone_names?: Record<string, string>;
   payload?: {
     unique_visitors?: number;
+    frames_processed?: number;
     zone_summary?: Record<string, ZoneSummary>;
+    zone_names?: Record<string, string>;
     heatmap_keys?: string[];
   };
   anomalies?: AnomalyEvent[];
@@ -51,4 +55,14 @@ export interface ReportData {
 export interface UploadResponse {
   job_id: string;
   status: string;
+}
+
+export interface JobSummary {
+  job_id: string;
+  state: "queued" | "processing" | "complete" | "failed";
+  updated_at: string;
+  filename?: string;
+  anomaly_count?: number;
+  has_analytics?: number;
+  has_report?: number;
 }

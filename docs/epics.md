@@ -11,38 +11,38 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 **Goal:** YOLOv8 detecting people on Mall Dataset frames with measurable accuracy.
 
 **Day 1**
-- [ ] Download Mall Dataset from `https://personal.ie.cuhk.edu.hk/~ccloy/downloads_mall_dataset.html`
-- [ ] Explore the dataset — look at 10 frames manually, understand folder structure
-- [ ] Read `mall_gt.mat` ground truth annotations in Python using `scipy.io.loadmat`
+- [x] Download Mall Dataset from `https://personal.ie.cuhk.edu.hk/~ccloy/downloads_mall_dataset.html`
+- [x] Explore the dataset — look at 10 frames manually, understand folder structure
+- [x] Read `mall_gt.mat` ground truth annotations in Python using `scipy.io.loadmat`
 
 **Day 2**
-- [ ] Set up Google Colab notebook
-- [ ] Install: `ultralytics`, `opencv-python-headless`, `scipy`, `matplotlib`
-- [ ] Run YOLOv8n on a single mall frame, visualize bounding boxes
+- [x] Set up Google Colab notebook
+- [x] Install: `ultralytics`, `opencv-python-headless`, `scipy`, `matplotlib`
+- [x] Run YOLOv8n on a single mall frame, visualize bounding boxes
 
 **Day 3**
-- [ ] Run detection on 50 frames
-- [ ] Extract person count per frame
-- [ ] Compare against ground truth count from `mall_gt.mat`
+- [x] Run detection on 50 frames
+- [x] Extract person count per frame
+- [x] Compare against ground truth count from `mall_gt.mat`
 
 **Day 4**
-- [ ] Compute MAE and MSE across 50 frames
-- [ ] Tune confidence threshold to improve accuracy
-- [ ] Document results in a table (threshold vs MAE)
+- [x] Compute MAE and MSE across 50 frames
+- [x] Tune confidence threshold to improve accuracy
+- [x] Document results in a table (threshold vs MAE) — *added to `shoplens_guide.md` § Threshold Tuning*
 
 **Day 5**
-- [ ] Run on all 2000 frames
-- [ ] Save results to CSV: `frame_id, detected_count, gt_count, mae`
-- [ ] Write brief summary: detection accuracy, failure cases, findings
+- [x] Run on all 2000 frames
+- [x] Save results to CSV: `frame_id, detected_count, gt_count, mae` — *`shoplens_drive/detection_results.csv`, 2000 rows; per-frame `error` column carries mae (`mae` = mean of `error`), plus `conf`*
+- [x] Write brief summary: detection accuracy, failure cases, findings
 
 **Week 1 output:** Colab notebook + CSV with detection results + accuracy metrics
 
 **Definition of Done**
-- [ ] YOLOv8 runs on all 2000 Mall Dataset frames
-- [ ] CSV saved with `frame_id, detected_count, gt_count, mae`
-- [ ] MAE/MSE computed and documented in a threshold-vs-MAE table
-- [ ] Accuracy summary written (failure cases, findings)
-- [ ] Colab notebook is reproducible from scratch
+- [x] YOLOv8 runs on all 2000 Mall Dataset frames — *`detection_results.csv` has 2000 rows*
+- [x] CSV saved with `frame_id, detected_count, gt_count, mae` — *see column note above*
+- [x] MAE/MSE computed and documented in a threshold-vs-MAE table — *7 thresholds, best `conf=0.1` MAE 5.88; full run MAE 5.71 / RMSE 6.82*
+- [x] Accuracy summary written (failure cases, findings) — *`shoplens_guide.md` § Failure Analysis + `shoplens_drive/failure_cases.png`*
+- [x] Colab notebook is reproducible from scratch — *`notebooks/detection.ipynb`*
 
 ---
 
@@ -51,36 +51,36 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 **Goal:** DeepSORT tracking unique IDs across frames reliably.
 
 **Day 1**
-- [ ] Install `deep_sort_realtime`
-- [ ] Understand DeepSORT input format — bounding boxes + confidence scores
-- [ ] Run DeepSORT on 10 consecutive mall frames, print tracked IDs
+- [x] Install `deep_sort_realtime`
+- [x] Understand DeepSORT input format — bounding boxes + confidence scores
+- [x] Run DeepSORT on 10 consecutive mall frames, print tracked IDs
 
 **Day 2**
-- [ ] Build a pipeline: frame → YOLOv8 detections → DeepSORT → tracked persons
-- [ ] Visualize: draw bounding boxes with ID labels on frames
-- [ ] Export annotated frames as video using OpenCV `VideoWriter`
+- [x] Build a pipeline: frame → YOLOv8 detections → DeepSORT → tracked persons
+- [x] Visualize: draw bounding boxes with ID labels on frames
+- [x] Export annotated frames as video using OpenCV `VideoWriter`
 
 **Day 3**
-- [ ] Track across 200 frames
-- [ ] Count unique IDs (unique visitors)
-- [ ] Identify ID switching issues (same person gets new ID) and log them
+- [x] Track across 200 frames
+- [x] Count unique IDs (unique visitors)
+- [x] Identify ID switching issues (same person gets new ID) and log them
 
 **Day 4**
-- [ ] Tune DeepSORT `max_age` and `n_init` parameters to reduce ID switches
-- [ ] Re-run and compare ID switch count before vs after tuning
+- [x] Tune DeepSORT `max_age` and `n_init` parameters to reduce ID switches
+- [x] Re-run and compare ID switch count before vs after tuning — *208 → 103 unique IDs, 105 fewer switches*
 
 **Day 5**
-- [ ] Build trajectory recorder: for each ID, store list of (x, y, frame) positions
-- [ ] Visualize trajectories as lines overlaid on store frame
-- [ ] Save trajectories to JSON
+- [x] Build trajectory recorder: for each ID, store list of (x, y, frame) positions
+- [x] Visualize trajectories as lines overlaid on store frame
+- [x] Save trajectories to JSON
 
 **Week 2 output:** Tracking pipeline + annotated video + trajectory JSON
 
 **Definition of Done**
-- [ ] Annotated video with ID labels exported via `VideoWriter`
-- [ ] Trajectories saved to JSON
-- [ ] ID switch count measured before and after tuning (documented comparison)
-- [ ] Unique visitor count extracted from 200+ frames
+- [x] Annotated video with ID labels exported via `VideoWriter` — *`shoplens_drive/tracking_annotated.mp4` (12 MB)*
+- [x] Trajectories saved to JSON — *`data/trajectories.json`*
+- [x] ID switch count measured before and after tuning (documented comparison) — *baseline 208 / best 103 over 200 frames → `code_walkthrough.md`*
+- [x] Unique visitor count extracted from 200+ frames — *200-frame run, 208 baseline / 103 tuned*
 
 ---
 
@@ -89,36 +89,36 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 **Goal:** User-defined zones with per-zone visitor counts and dwell time.
 
 **Day 1**
-- [ ] Learn Fabric.js basics — draw a rectangle on a canvas image in React
-- [ ] Build a simple zone drawing component: load mall frame, draw zones, save zone coordinates
+- [x] Learn Fabric.js basics — draw a rectangle on a canvas image in React
+- [x] Build a simple zone drawing component: load mall frame, draw zones, save zone coordinates
 
 **Day 2**
-- [ ] Store zone coordinates (polygon points) in Supabase
-- [ ] Load zones back and overlay them on video frames in OpenCV
+- [x] Store zone coordinates (polygon points) in Supabase — *substituted: local SQLite*
+- [x] Load zones back and overlay them on video frames in OpenCV
 
 **Day 3**
-- [ ] Build zone intersection logic: given a person's (x,y) centroid, which zone are they in?
-- [ ] Test on 100 frames — print zone assignments per person per frame
+- [x] Build zone intersection logic: given a person's (x,y) centroid, which zone are they in?
+- [x] Test on 100 frames — print zone assignments per person per frame
 
 **Day 4**
-- [ ] Calculate dwell time per zone per person: how many consecutive frames in the zone × frame interval
-- [ ] Aggregate: average dwell time per zone across all visitors
+- [x] Calculate dwell time per zone per person: how many consecutive frames in the zone × frame interval
+- [x] Aggregate: average dwell time per zone across all visitors
 
 **Day 5**
-- [ ] Build zone analytics summary:
-  - [ ] Total unique visitors per zone
-  - [ ] Average dwell time per zone
-  - [ ] Peak hour per zone (hour with most visitors)
-- [ ] Save to Supabase
+- [x] Build zone analytics summary:
+  - [x] Total unique visitors per zone
+  - [x] Average dwell time per zone
+  - [x] Peak hour per zone (hour with most visitors)
+- [x] Save to Supabase — *substituted: local SQLite*
 
 **Week 3 output:** Zone drawing UI + zone analytics saved to database
 
 **Definition of Done**
-- [ ] Zone drawing UI loads a frame and saves polygon coordinates
-- [ ] Zones persist to Supabase and reload correctly
-- [ ] Zone intersection logic verified on 100 frames
-- [ ] Per-zone visitor counts + dwell times stored in Supabase
-- [ ] Zone analytics summary (visitors, dwell, peak hour) computed
+- [x] Zone drawing UI loads a frame and saves polygon coordinates
+- [x] Zones persist to Supabase and reload correctly — *substituted: local SQLite*
+- [x] Zone intersection logic verified on 100 frames — `backend/scripts/verify_zones_100.py`
+- [x] Per-zone visitor counts + dwell times stored in Supabase — *substituted: local SQLite*
+- [x] Zone analytics summary (visitors, dwell, peak hour) computed
 
 ---
 
@@ -127,35 +127,35 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 **Goal:** Visual floor heatmap showing traffic intensity per zone.
 
 **Day 1**
-- [ ] Understand Gaussian heatmap generation — add a Gaussian blob at each person centroid
-- [ ] Build `generate_heatmap(frame, positions)` function
-- [ ] Visualize on 1 frame
+- [x] Understand Gaussian heatmap generation — add a Gaussian blob at each person centroid
+- [x] Build `generate_heatmap(frame, positions)` function
+- [x] Visualize on 1 frame
 
 **Day 2**
-- [ ] Aggregate heatmap across all 2000 frames
-- [ ] Overlay heatmap on store frame using `cv2.addWeighted`
-- [ ] Export as PNG
+- [x] Aggregate heatmap across all 2000 frames
+- [x] Overlay heatmap on store frame using `cv2.addWeighted`
+- [x] Export as PNG
 
 **Day 3**
-- [ ] Build time-segmented heatmaps: morning (9am-12pm), afternoon (12-5pm), evening (5-9pm)
-- [ ] Compare heatmaps across time segments
+- [x] Build time-segmented heatmaps: morning (9am-12pm), afternoon (12-5pm), evening (5-9pm)
+- [x] Compare heatmaps across time segments — *segments are clip-relative thirds (CCTV has no wall clock)*
 
 **Day 4**
-- [ ] Build heatmap API endpoint in FastAPI: accepts `video_id` + `time_range`, returns heatmap PNG
-- [ ] Test endpoint with Postman
+- [x] Build heatmap API endpoint in FastAPI: accepts `video_id` + `time_range`, returns heatmap PNG
+- [x] Test endpoint with Postman — *substituted: curl / HTTP client, all 4 ranges return 200 with distinct bytes*
 
 **Day 5**
-- [ ] Display heatmap in React dashboard
-- [ ] Add time range selector (morning/afternoon/evening)
-- [ ] Heatmap updates when time range changes
+- [x] Display heatmap in React dashboard
+- [x] Add time range selector (morning/afternoon/evening)
+- [x] Heatmap updates when time range changes
 
 **Week 4 output:** Dynamic heatmap in dashboard with time segmentation
 
 **Definition of Done**
-- [ ] Aggregate heatmap PNG exported for all 2000 frames
-- [ ] Morning/afternoon/evening heatmaps generated and compared
-- [ ] FastAPI heatmap endpoint returns valid PNG (tested in Postman)
-- [ ] Heatmap renders in dashboard and updates on time-range change
+- [x] Aggregate heatmap PNG exported for all 2000 frames — `data/out/heatmaps/mall_full.png`
+- [x] Morning/afternoon/evening heatmaps generated and compared — `data/out/heatmaps/mall_*.png`
+- [x] FastAPI heatmap endpoint returns valid PNG (tested in Postman) — *tested via HTTP client*
+- [x] Heatmap renders in dashboard and updates on time-range change
 
 ---
 
@@ -166,58 +166,58 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 **Week 5**
 
 **Day 1**
-- [ ] Understand autoencoders — encoder compresses input, decoder reconstructs. High reconstruction error = anomaly
-- [ ] Define feature vector per person per frame: (zone_id, dwell_time, velocity, direction_change)
+- [x] Understand autoencoders — encoder compresses input, decoder reconstructs. High reconstruction error = anomaly
+- [x] Define feature vector per person per frame: (zone_id, dwell_time, velocity, direction_change)
 
 **Day 2**
-- [ ] Extract feature vectors from all trajectories in Mall Dataset
-- [ ] Normalize features (StandardScaler)
-- [ ] Split into train (normal behavior) / test sets
+- [x] Extract feature vectors from all trajectories in Mall Dataset
+- [x] Normalize features (StandardScaler)
+- [x] Split into train (normal behavior) / test sets
 
 **Day 3**
-- [ ] Build autoencoder in PyTorch: Input(4) → 8 → 4 → 2 → 4 → 8 → Output(4)
-- [ ] Train on normal movement features
-- [ ] Track training loss with MLflow
+- [x] Build autoencoder in PyTorch: Input(4) → 8 → 4 → 2 → 4 → 8 → Output(4)
+- [x] Train on normal movement features
+- [x] Track training loss with MLflow
 
 **Day 4**
-- [ ] Compute reconstruction error on test set
-- [ ] Plot error distribution — set anomaly threshold at 95th percentile
-- [ ] Visualize: normal vs anomalous trajectories on store frame
+- [x] Compute reconstruction error on test set
+- [x] Plot error distribution — set anomaly threshold at 95th percentile
+- [ ] Visualize: normal vs anomalous trajectories on store frame — *not yet produced*
 
 **Day 5**
-- [ ] Evaluate false positive rate on known normal behavior
-- [ ] Tune threshold, retrain, compare experiments in MLflow
-- [ ] Save best model with MLflow Model Registry
+- [x] Evaluate false positive rate on known normal behavior — *18 FP out of 61 labeled-normal visits*
+- [x] Tune threshold, retrain, compare experiments in MLflow — *3 runs in experiment `shoplens-autoencoder`*
+- [x] Save best model with MLflow Model Registry — *registered as `shoplens-autoencoder` v1*
 
 **Week 6**
 
 **Day 1**
-- [ ] Define 3 anomaly types: loitering (high dwell, low movement), crowd spike (sudden count increase), zone avoidance (zone consistently skipped)
-- [ ] Label examples of each from Mall Dataset manually
+- [x] Define 3 anomaly types: loitering (high dwell, low movement), crowd spike (sudden count increase), zone avoidance (zone consistently skipped)
+- [x] Label examples of each from Mall Dataset manually — *86 labeled visits in `data/labels/samples.csv`*
 
 **Day 2**
-- [ ] Integrate autoencoder into main pipeline
-- [ ] Flag anomalous trajectories in real-time during video processing
+- [x] Integrate autoencoder into main pipeline
+- [x] Flag anomalous trajectories in real-time during video processing
 
 **Day 3**
-- [ ] Build anomaly alert system: store flagged events in Supabase with timestamp, zone, anomaly type
+- [x] Build anomaly alert system: store flagged events in Supabase with timestamp, zone, anomaly type — *substituted: local SQLite*
 
 **Day 4**
-- [ ] Display anomaly alerts in React dashboard: timeline of alerts, highlight anomalous zones
+- [x] Display anomaly alerts in React dashboard: timeline of alerts, highlight anomalous zones
 
 **Day 5**
-- [ ] Evaluate: compute precision/recall on manually labeled anomaly examples
-- [ ] Document results
+- [x] Evaluate: compute precision/recall on manually labeled anomaly examples
+- [x] Document results — *precision 0.419, recall 0.520, F1 0.464 → `data/labels/results.json`*
 
 **Week 5-6 output:** Trained autoencoder + MLflow experiment logs + anomaly alerts in dashboard
 
 **Definition of Done**
-- [ ] Autoencoder trained with loss tracked in MLflow
-- [ ] Best model registered in MLflow Model Registry
-- [ ] Anomaly threshold set at 95th percentile of reconstruction error
-- [ ] All 3 anomaly types (loitering, crowd spike, zone avoidance) flagged during processing
-- [ ] Alerts stored in Supabase and shown in dashboard timeline
-- [ ] Precision/recall computed on labeled examples and documented
+- [x] Autoencoder trained with loss tracked in MLflow
+- [x] Best model registered in MLflow Model Registry — *`shoplens-autoencoder` v1*
+- [x] Anomaly threshold set at 95th percentile of reconstruction error
+- [x] All 3 anomaly types (loitering, crowd spike, zone avoidance) flagged during processing
+- [x] Alerts stored in Supabase and shown in dashboard timeline — *substituted: local SQLite*
+- [x] Precision/recall computed on labeled examples and documented — *P=0.419, R=0.520, F1=0.464 (13 TP / 18 FP / 12 FN on 86 labeled visits)*
 
 ---
 
@@ -388,11 +388,11 @@ Tick the checkboxes as you go. An Epic is done only when its Definition of Done 
 
 | Status | Week | Epic | Key Output |
 |---|---|---|---|
-| - [ ] | 1 | Detection | YOLOv8 on Mall Dataset with MAE metrics |
-| - [ ] | 2 | Tracking | DeepSORT with trajectory JSON |
-| - [ ] | 3 | Zone System | Zone drawing UI + dwell time analytics |
-| - [ ] | 4 | Heatmap | Dynamic heatmap in dashboard |
-| - [ ] | 5-6 | Anomaly Detection | Trained autoencoder + MLflow logs |
+| - [x] | 1 | Detection | YOLOv8 on Mall Dataset with MAE metrics |
+| - [x] | 2 | Tracking | DeepSORT with trajectory JSON |
+| - [x] | 3 | Zone System | Zone drawing UI + dwell time analytics |
+| - [x] | 4 | Heatmap | Dynamic heatmap in dashboard |
+| - [x] | 5-6 | Anomaly Detection | Trained autoencoder + MLflow logs |
 | - [ ] | 7 | LLM Report | Auto-generated insight report |
 | - [ ] | 8 | Backend | Full async pipeline with job queue |
 | - [ ] | 9 | Deployment | Live at public URL |

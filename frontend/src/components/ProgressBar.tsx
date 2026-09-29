@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { pollStatus } from "../api/client";
 import type { JobProgress } from "../types";
 
@@ -40,8 +41,15 @@ export default function ProgressBar({ jobId, onComplete }: Props) {
       <div className="progress-label">
         {progress?.message || "Waiting for worker..."} ({pct}%)
       </div>
-      <div className="progress-track">
-        <div className="progress-fill" style={{ width: `${pct}%` }} />
+      <div
+        className="progress-track"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-label="Analysis progress"
+      >
+        <div className="progress-fill" style={{ "--p": pct / 100 } as CSSProperties} />
       </div>
     </div>
   );

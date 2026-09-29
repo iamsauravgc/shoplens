@@ -38,8 +38,12 @@ export default function Report({ jobId }: { jobId: string }) {
   return (
     <section>
       <h2>Insight report</h2>
-      <button onClick={handleGenerate} disabled={busy}>
-        {busy ? "Generating..." : report ? "Regenerate report" : "Generate report"}
+      <button
+        className={busy ? "btn--primary is-loading" : "btn--primary"}
+        onClick={handleGenerate}
+        disabled={busy}
+      >
+        {busy ? "Generating…" : report ? "Regenerate report" : "Generate report"}
       </button>
       <button onClick={handleDownload} disabled={!report}>
         Download

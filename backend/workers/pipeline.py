@@ -1,7 +1,9 @@
 import asyncio
 import logging
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
+from time import perf_counter
 
 import cv2
 import numpy as np
@@ -36,6 +38,14 @@ DEFAULT_FPS = 30.0
 
 def _set_progress(job_id: str, step: int, message: str, state: str = "processing") -> None:
     set_job_progress(job_id, step, TOTAL_STEPS, message, state)
+
+
+@contextmanager
+def _timed(job_id: str, label: str):
+    """Log how long each pipeline step takes — the README perf number comes from these."""
+    start = perf_counter()
+    yield
+    logger.info("job %s: %s took %.1fs", job_id, label, perf_counter() - start)
 
 
 def _read_sampled_frames(video_path: Path) -> tuple[list[tuple[int, "cv2.Mat"]], float]:
@@ -210,30 +220,38 @@ def process_video(job_id: str, storage_key: str, store_id: str = "default"):
     logger.info("pipeline started for %s", job_id)
     tmp_dir = Path(tempfile.mkdtemp(prefix="shoplens_"))
     video_path = tmp_dir / f"{job_id}.mp4"
+    total_start = perf_counter()
 
     try:
         _set_progress(job_id, 1, "Downloading video...")
-        download_to(storage_key, video_path)
+        with _timed(job_id, "download"):
+            download_to(storage_key, video_path)
 
         _set_progress(job_id, 1, "Reading frames (every 5th)...")
-        frames, fps = _read_sampled_frames(video_path)
+        with _timed(job_id, "read frames"):
+            frames, fps = _read_sampled_frames(video_path)
 
         _set_progress(job_id, 2, "Detecting people + blurring faces...")
-        annotated = _detect_and_blur(frames)
+        with _timed(job_id, "detect + blur"):
+            annotated = _detect_and_blur(frames)
 
         _set_progress(job_id, 3, "Tracking IDs with DeepSORT...")
-        trajectories, frame_data = _track(annotated)
+        with _timed(job_id, "track"):
+            trajectories, frame_data = _track(annotated)
 
         _set_progress(job_id, 4, "Computing zone analytics...")
-        zones_raw = fetch_zones(store_id)
-        video = fetch_video(job_id) or {}
-        zones, visits, summary = _zone_analytics(trajectories, zones_raw, fps, video.get("created_at"))
+        with _timed(job_id, "zone analytics"):
+            zones_raw = fetch_zones(store_id)
+            video = fetch_video(job_id) or {}
+            zones, visits, summary = _zone_analytics(trajectories, zones_raw, fps, video.get("created_at"))
 
         _set_progress(job_id, 5, "Generating heatmap...")
-        heatmap_keys = _generate_heatmaps(annotated, frame_data, zones, job_id, tmp_dir)
+        with _timed(job_id, "heatmap"):
+            heatmap_keys = _generate_heatmaps(annotated, frame_data, zones, job_id, tmp_dir)
 
         _set_progress(job_id, 6, "Scoring anomalies...")
-        anomaly_events = _flag_anomalies(visits, summary, trajectories, zones, frame_data, [z.zone_id for z in zones])
+        with _timed(job_id, "anomaly scoring"):
+            anomaly_events = _flag_anomalies(visits, summary, trajectories, zones, frame_data, [z.zone_id for z in zones])
 
         analytics_payload = {
             "video_id": job_id,
@@ -249,19 +267,33 @@ def process_video(job_id: str, storage_key: str, store_id: str = "default"):
 
         _set_progress(job_id, 7, "Generating insight report...")
         if get_settings().groq_api_key:
-            report_content = asyncio.run(generate_report(analytics_payload))
-            insert_report({"video_id": job_id, "content": report_content, "model": "llama-3.3-70b-versatile"})
+            # a report failure must not fail the job — analytics/heatmap/anomalies
+            # are already stored, and the dashboard has a Generate button to retry
+            try:
+                with _timed(job_id, "LLM report"):
+                    report_content = asyncio.run(
+                        generate_report({**analytics_payload, "anomalies": anomaly_events})
+                    )
+                    insert_report({"video_id": job_id, "content": report_content, "model": get_settings().llm_model})
+            except Exception:
+                logger.exception("report generation failed for %s (job continues)", job_id)
         else:
             logger.info("GROQ_API_KEY not set — skipping report generation")
 
         update_video_status(job_id, "done")
         _set_progress(job_id, TOTAL_STEPS, "Done", state="complete")
-        logger.info("pipeline finished for %s", job_id)
+        total = perf_counter() - total_start
+        source_seconds = len(frames) * FRAME_SAMPLE_INTERVAL / fps
+        logger.info(
+            "pipeline finished for %s in %.1fs (%.2f min processing per min of video, %.0f frames sampled)",
+            job_id, total, total / source_seconds if source_seconds else 0, len(frames),
+        )
     except Exception as exc:
         logger.exception("pipeline failed for %s", job_id)
         update_video_status(job_id, "failed", error=str(exc))
         _set_progress(job_id, 0, str(exc), state="failed")
-        # TODO(epic-8 day 5): retry logic — re-enqueue transient failures, fail permanently on corrupt video
+        # no auto-retry: failures here are deterministic (bad/corrupt input), so a
+        # retry would fail identically. Crash/restart recovery is resume_unfinished().
         raise
     finally:
         import shutil

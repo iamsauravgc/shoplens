@@ -32,8 +32,8 @@ def threshold_mae_table(results_by_threshold: dict[float, float]) -> str:
 
 
 def id_switch_rate(unique_ids: int, gt_persons: int | None = None) -> dict:
-    # proxy metric from tracking.ipynb: fewer IDs on the same footage = fewer ID switches
-    # TODO(epic-9 day 1): refine using short-track counting (cv.tracker.count_id_switches)
+    # proxy metric from 02_tracking.ipynb: fewer IDs on the same footage = fewer ID switches
+    # future: wire cv.tracker.count_id_switches for a MOT-standard IDSW count
     metrics = {"unique_ids": unique_ids}
     if gt_persons is not None and gt_persons > 0:
         metrics["ids_per_gt_person"] = round(unique_ids / gt_persons, 3)

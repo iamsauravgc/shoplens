@@ -1,7 +1,7 @@
 """Regenerate data/trajectories.json locally (Epic 2 output) — every 5th mall frame, full clip.
 
 Run:  .venv/Scripts/python scripts/build_trajectories.py   (from backend/)
-Format matches notebooks/tracking.ipynb: {"meta": {...}, "trajectories": {id: [{frame,cx,cy}]}}
+Format matches notebooks/02_tracking.ipynb: {"meta": {...}, "trajectories": {id: [{frame,cx,cy}]}}
 """
 from __future__ import annotations
 

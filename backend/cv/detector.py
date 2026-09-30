@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 logging.getLogger("ultralytics").setLevel(logging.WARNING)
 
-# winner of the threshold-vs-MAE tuning in notebooks/detection.ipynb
+# winner of the threshold-vs-MAE tuning in notebooks/01_detection.ipynb
 BEST_CONF = 0.1
 
 _model = None

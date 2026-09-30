@@ -1,10 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.db import fetch_report
+from app.db import fetch_report, get_job_progress
 from app.services.report import generate_and_store_report
 
 router = APIRouter()
+
+ACTIVE_STATES = {"queued", "processing"}
 
 
 class GenerateReportRequest(BaseModel):
@@ -21,7 +23,9 @@ def get_report(job_id: str):
 
 @router.post("/reports/generate")
 async def generate_report(req: GenerateReportRequest):
-    # TODO(epic-7 day 5): reject generation while the pipeline job is still running
+    progress = get_job_progress(req.video_id)
+    if progress and progress["state"] in ACTIVE_STATES:
+        raise HTTPException(status_code=409, detail="Job is still running — wait for it to finish")
     report = await generate_and_store_report(req.video_id)
     if report is None:
         raise HTTPException(status_code=404, detail=f"No analytics found for {req.video_id}")

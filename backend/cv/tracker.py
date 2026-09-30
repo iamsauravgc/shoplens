@@ -6,7 +6,7 @@ from cv.detector import xyxy_to_xywh
 
 logger = logging.getLogger(__name__)
 
-# tuned in notebooks/tracking.ipynb — TODO(epic-2): copy final values from the tuning cell
+# final values from the tuning cell in notebooks/02_tracking.ipynb (208 → 103 unique IDs)
 BEST_MAX_AGE = 30
 BEST_N_INIT = 3
 
@@ -53,5 +53,5 @@ def build_trajectories(frame_tracks: dict) -> tuple[dict, dict]:
 
 
 def count_id_switches(trajectories: dict, min_points: int = 5) -> int:
-    # proxy metric from tracking.ipynb: short-lived tracks are likely ID switches
+    # proxy metric from 02_tracking.ipynb: short-lived tracks are likely ID switches
     return sum(1 for points in trajectories.values() if len(points) < min_points)

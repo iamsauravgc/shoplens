@@ -44,7 +44,7 @@ def compute_zone_visits(
     frame_interval_sec: float,
     min_frames: int = 3,
 ) -> list[ZoneVisit]:
-    # TODO(epic-3 day 4): tune min_frames so a person walking past a zone edge isn't counted as a visit
+    # min_frames=3 is a reasoned default, not tuned — see Limitations in docs/technical_report.md
     visits: list[ZoneVisit] = []
     for raw_id, points in trajectories.items():
         track_id = int(raw_id)

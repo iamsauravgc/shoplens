@@ -56,7 +56,7 @@ class TrajectoryAutoencoder(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-# --- feature extraction (must match notebooks/autoencoder_training.ipynb) ----
+# --- feature extraction (must match notebooks/03_autoencoder.ipynb) ----
 
 def zone_index_map(zones: list[Zone]) -> dict[str, int]:
     """Stable zone encoding: zones sorted by name -> index. Persisted with the model."""
@@ -232,7 +232,7 @@ def standstill_speed(points: list[dict], dwell_seconds: float) -> float:
 
 
 def classify_loitering(dwell_seconds: float, standstill_speed_px_s: float) -> bool:
-    # TODO(epic-6 day 1): calibrate thresholds on manually labeled examples
+    # thresholds are reasoned defaults, not calibrated on labels — see Limitations in docs/technical_report.md
     return dwell_seconds >= LOITERING_MIN_DWELL_SEC and standstill_speed_px_s < LOITERING_MAX_STANDSTILL_SPEED
 
 

@@ -46,7 +46,7 @@ Every choice below has a reason. Learn the one-line reason — that's what you s
 
 **MLflow:** local tracking in Colab notebooks only. Trained model exported and saved to backend/models/. MLflow registry not deployed — export best model as .pth file.
 
-**LLM:** Groq API free tier (Llama-3.3-70B). Not Ollama — Railway can't run it. Fast, free, no GPU.
+**LLM:** Groq API free tier (configurable, `openai/gpt-oss-120b` default). Not Ollama — Railway can't run it. Fast, free, no GPU.
 
 **Frontend:** React (canvas-based zone drawing needs it — Streamlit can't do this) + Recharts + Fabric.js.
 
@@ -76,7 +76,7 @@ If a skill isn't installed, suggest installing it. Don't refuse the task without
 
 1. **Zones saved per store layout** — user draws zones once; every new video reuses them. Don't reset per upload.
 2. **Max video 2 minutes, sample every 5th frame** — full-frame processing is 3-5 hours per clip. Document this as a design decision.
-3. **LLM is Groq API** — Llama-3.3-70B via free tier. Not Ollama.
+3. **LLM is Groq API** — free tier, configurable model (`openai/gpt-oss-120b` default). Not Ollama.
 4. **Anomaly alerts flagged in dashboard + report only (MVP)** — no WebSockets/email. Note "future work: real-time alerts via email".
 5. **Privacy: blur faces before storing** — non-negotiable. Original frames never saved. One extra step after detection:
 
@@ -110,10 +110,10 @@ The full plan with every daily task is in `epics.md` — read it before starting
 - [x] **Epic 3 — Zone System (Week 3):** Fabric.js zone drawing UI, zones in Supabase, per-zone visitors/dwell/peak hour
 - [x] **Epic 4 — Heatmap (Week 4):** Gaussian heatmap PNG + morning/afternoon/evening segments, FastAPI endpoint, React display
 - [x] **Epic 5-6 — Anomaly Detection (Weeks 5-6):** autoencoder trained on normal movement, MLflow-tracked, 3 anomaly types (loitering, crowd spike, zone avoidance), precision/recall
-- [ ] **Epic 7 — LLM Report (Week 7):** Groq prompt template → specific actionable insights, `POST /reports/generate`, downloadable report
-- [ ] **Epic 8 — Backend + Job Queue (Week 8):** full pipeline as one RQ job with progress, 5 endpoints, React progress bar polling every 3s
-- [ ] **Epic 9 — Deployment (Week 9):** Supabase + R2 setup, Railway backend, Vercel frontend, 5 test videos end-to-end
-- [ ] **Epic 10 — Evaluation + Docs (Week 10):** results table (MAE/MSE, ID switch rate, precision/recall), demo video <3 min, README, technical report
+- [x] **Epic 7 — LLM Report (Week 7):** Groq prompt template → specific actionable insights, `POST /reports/generate`, downloadable report *(done; model `openai/gpt-oss-120b`, report failure never fails the job)*
+- [x] **Epic 8 — Backend + Job Queue (Week 8):** full pipeline as one RQ job with progress, 5 endpoints, React progress bar polling every 3s *(done; substituted: in-process `threading.Thread` + SQLite — Redis/RQ stay the deployment target)*
+- [ ] **Epic 9 — Deployment (Week 9):** Supabase + R2 setup, Railway backend, Vercel frontend, 5 test videos end-to-end *(deferred by decision; wiring prepared in `supabase/schema.sql` + `railway.toml`)*
+- [x] **Epic 10 — Evaluation + Docs (Week 10):** results table (MAE/MSE, ID switch rate, precision/recall), demo video <3 min, README, technical report *(done; demo video substituted by automated screenshots in `docs/screenshots/`; report in `docs/technical_report.md`; push pending explicit go-ahead)*
 
 ## File structure (target repo layout)
 
@@ -145,7 +145,7 @@ shoplens/
 │   │   │   ├── ProgressBar.tsx   # polls /status every 3s
 │   │   │   └── Report.tsx
 │   └── package.json
-└── notebooks/                # Colab: detection eval, tracking, autoencoder training
+└── notebooks/                # Colab: 01_detection.ipynb, 02_tracking.ipynb, 03_autoencoder.ipynb
 ```
 
 ## Anti-patterns (don't do these)

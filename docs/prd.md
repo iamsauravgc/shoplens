@@ -110,7 +110,7 @@ Solution: sample every 5th frame instead of every frame. 2 min video → 720 fra
 3. Which LLM for insight generation — local (Ollama) or API (Groq free tier)?
 LLM — Groq API
 
-Ollama runs locally — Railway deployment can't run Ollama. Groq free tier gives Llama-3.3-70B via API, fast, free, no GPU needed. Easy choice.
+Ollama runs locally — Railway deployment can't run Ollama. Groq free tier gives a capable model via OpenAI-compatible API (we use openai/gpt-oss-120b), fast, free, no GPU needed. Easy choice.
 
 4. Should anomaly alerts be real-time notifications or just flagged in the report?
 Anomaly alerts — flagged in report only (MVP)

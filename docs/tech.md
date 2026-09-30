@@ -39,7 +39,7 @@ Every choice below has a reason. Learn the one-line reason — that's what you s
 
 | Tool | Why |
 |---|---|
-| **Groq API (free tier)** | Fastest LLM inference available for free. Llama-3.3-70B via Groq generates insight reports from structured analytics JSON. No GPU needed. Alternative: Ollama locally but slower. |
+| **Groq API (free tier)** | Fastest LLM inference available for free. `openai/gpt-oss-120b` via Groq generates insight reports from structured analytics JSON (model/URL configurable via `LLM_MODEL` / `LLM_API_URL`). No GPU needed. Alternative: Ollama locally but slower. |
 
 ---
 

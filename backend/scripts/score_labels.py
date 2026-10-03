@@ -1,7 +1,3 @@
-"""Epic 5: precision/recall from data/labels/samples.csv (labels filled in by hand).
-
-Run:  .venv/Scripts/python scripts/score_labels.py   (from backend/)
-"""
 from __future__ import annotations
 
 import csv

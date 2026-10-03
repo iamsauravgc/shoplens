@@ -44,7 +44,7 @@ def compute_zone_visits(
     frame_interval_sec: float,
     min_frames: int = 3,
 ) -> list[ZoneVisit]:
-    # min_frames=3 is a reasoned default, not tuned — see Limitations in docs/technical_report.md
+    # min_frames=3 is a reasoned default, not tuned — see README §12 Limitations
     visits: list[ZoneVisit] = []
     for raw_id, points in trajectories.items():
         track_id = int(raw_id)

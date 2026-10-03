@@ -1,11 +1,3 @@
-"""Epic 5 Week 6: manual labeling worksheet -> precision/recall on held-out test visits.
-
-Run:  .venv/Scripts/python scripts/make_labeling_worksheet.py   (from backend/)
-Outputs:
-  data/labels/worksheet_1.png, worksheet_2.png   (sketches to eyeball)
-  data/labels/samples.csv                        (fill the `label` column with 1=anomaly, 0=normal)
-Then: .venv/Scripts/python scripts/score_labels.py
-"""
 from __future__ import annotations
 
 import csv

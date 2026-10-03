@@ -1,10 +1,3 @@
-"""Epic 5: train the autoencoder on zone-visit features (trajectories.json + zones from the DB).
-
-Run:  .venv/Scripts/python training/train_autoencoder.py   (from backend/)
-Needs: data/trajectories.json (Epic 2 output) and at least one zone saved in the Zones UI.
-Writes: models/autoencoder.pth, models/autoencoder.scaler.joblib, models/threshold.json,
-        models/zone_index.json  + an MLflow run (mlflow ui --backend-store-uri mlruns)
-"""
 from __future__ import annotations
 
 import json
@@ -126,7 +119,7 @@ def main() -> int:
         test_errors = ((model(x_test) - x_test) ** 2).mean(dim=1).numpy()
         train_errors = ((model(x_train) - x_train) ** 2).mean(dim=1).numpy()
 
-    threshold = anomaly_threshold(train_errors)  # CLAUDE.md: p95 on the training set
+    threshold = anomaly_threshold(train_errors)  # p95 on the training set
     test_p95 = anomaly_threshold(test_errors)
     mlflow.log_metric("final_loss", float(loss))
     mlflow.log_metric("train_error_p95", threshold)

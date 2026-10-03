@@ -34,7 +34,7 @@ DIRECTION_CHANGE_ANGLE_RAD = math.radians(60)
 
 
 class TrajectoryAutoencoder(nn.Module):
-    # Input(4) -> 8 -> 4 -> 2 -> 4 -> 8 -> Output(4), per epics.md Epic 5 Day 3
+    # Input(4) -> 8 -> 4 -> 2 -> 4 -> 8 -> Output(4)
     def __init__(self, dim: int = FEATURE_DIM):
         super().__init__()
         self.encoder = nn.Sequential(
@@ -232,7 +232,7 @@ def standstill_speed(points: list[dict], dwell_seconds: float) -> float:
 
 
 def classify_loitering(dwell_seconds: float, standstill_speed_px_s: float) -> bool:
-    # thresholds are reasoned defaults, not calibrated on labels — see Limitations in docs/technical_report.md
+    # thresholds are reasoned defaults, not calibrated on labels — see README §12 Limitations
     return dwell_seconds >= LOITERING_MIN_DWELL_SEC and standstill_speed_px_s < LOITERING_MAX_STANDSTILL_SPEED
 
 
@@ -279,7 +279,7 @@ def detect_zone_avoidance(
 
     Absolute-zero alone is too brittle — background flickers near a frame edge
     can register a handful of pass-through visits. Requiring a zone to sit far
-    below typical traffic matches the epics.md definition ('zone consistently
+    below typical traffic matches the zone-avoidance definition ('zone consistently
     skipped').
     """
     if len(expected_zones) < 2:

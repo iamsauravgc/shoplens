@@ -1,12 +1,3 @@
-"""Epic 5 leftover: normal vs anomalous trajectories overlaid on a store frame.
-
-Labels are per visit (data/labels/samples.csv); a track is drawn as anomalous
-if any of its labeled visits is anomalous. Unlabeled tracks are drawn faintly
-as store context.
-
-Run:  .venv/Scripts/python scripts/plot_anomaly_trajectories.py   (from backend/)
-Output: docs/evidence/anomaly_trajectories.png
-"""
 from __future__ import annotations
 
 import csv

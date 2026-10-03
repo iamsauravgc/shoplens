@@ -1,7 +1,3 @@
-"""Epic 3 verification: zone persistence round-trip + intersection logic on 100 mall frames.
-
-Run:  .venv/Scripts/python scripts/verify_zones_100.py   (from backend/)
-"""
 from __future__ import annotations
 
 import sys
@@ -112,7 +108,7 @@ def verify_intersection() -> bool:
 def main() -> int:
     persisted = verify_zone_persistence()
     intersected = verify_intersection()
-    print(f"\nEpic 3 verification: {'PASS' if persisted and intersected else 'FAIL'}")
+    print(f"\nZone verification: {'PASS' if persisted and intersected else 'FAIL'}")
     return 0 if persisted and intersected else 1
 
 

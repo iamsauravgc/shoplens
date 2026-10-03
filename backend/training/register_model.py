@@ -1,10 +1,3 @@
-"""Epic 5 DoD: register the trained autoencoder in the MLflow Model Registry.
-
-Run:  .venv/Scripts/python training/register_model.py   (from backend/)
-Reads the exported artifacts in models/ and publishes them as
-`shoplens-autoencoder` version N, so "best model" is tracked, not just a loose
-.pth file. Tracking/registry both live in backend/mlflow.db (local, no server).
-"""
 from __future__ import annotations
 
 import json

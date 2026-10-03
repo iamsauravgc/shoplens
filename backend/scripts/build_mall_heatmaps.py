@@ -1,9 +1,3 @@
-"""Epic 4 verification: aggregate heatmaps over all 2000 Mall Dataset frames + time segments.
-
-Run:  .venv/Scripts/python scripts/build_mall_heatmaps.py   (from backend/)
-Outputs: data/out/heatmaps/mall_{full,morning,afternoon,evening}.png
-Caches per-frame person centroids in data/mall_positions.json (reused by later runs).
-"""
 from __future__ import annotations
 
 import json
@@ -71,7 +65,7 @@ def main() -> int:
         path = export_png(overlay, out_dir / f"mall_{segment}.png")
         print(f"{segment:>10}: {len(pts):>7} positions -> {path}")
 
-    print(f"\nEpic 4 DoD 1-2: exported {sum(1 for p in segments.values() if p)} heatmap PNGs to {out_dir}")
+    print(f"\nExported {sum(1 for p in segments.values() if p)} heatmap PNGs to {out_dir}")
     return 0
 
 

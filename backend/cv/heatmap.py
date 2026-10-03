@@ -56,7 +56,6 @@ ZONE_COLORS = [(255, 0, 255), (255, 128, 0), (0, 255, 128), (255, 255, 0), (128,
 
 
 def overlay_zones(image_bgr: np.ndarray, zones) -> np.ndarray:
-    """Draw saved zone polygons on a frame with OpenCV (Epic 3, day 2)."""
     for i, zone in enumerate(zones):
         pts = np.array([(int(p[0]), int(p[1])) for p in zone.polygon], dtype=np.int32)
         if len(pts) < 3:

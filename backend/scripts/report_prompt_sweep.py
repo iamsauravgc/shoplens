@@ -1,9 +1,3 @@
-"""Epic 6 DoD: run the report prompt over 10 synthetic analytics inputs.
-
-Offline by default (formats prompts only). Pass --live to actually call the
-LLM for every case and print the generated reports.
-"""
-
 from __future__ import annotations
 
 import argparse

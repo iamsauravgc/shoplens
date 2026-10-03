@@ -60,7 +60,7 @@ def format_analytics_for_llm(analytics: dict) -> dict:
         ],
         "notes": [],
     }
-    # edge cases from Epic 7 Day 5: zero-visitor zones and zero anomalies must not break generation
+    # edge cases: zero-visitor zones and zero anomalies must not break generation
     if not formatted["zones"]:
         formatted["notes"].append("No zones defined or no visitors recorded.")
     else:

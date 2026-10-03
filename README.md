@@ -8,9 +8,9 @@ Small shops already have cameras but no insight — nobody knows which zones cus
 
 ShopLens closes that gap on a laptop: it reads an uploaded clip, detects and tracks every person, measures each zone the owner drew, flags unusual behaviour, and has an LLM write down what to do about it — in plain English, not charts.
 
-Everything is measured, not asserted: detection MAE, tracking ID stability, and anomaly precision/recall are all evaluated on the public Mall Dataset and documented in [`docs/technical_report.md`](docs/technical_report.md) (results in [§11](#11-testing)).
+Everything is measured, not asserted: detection MAE, tracking ID stability, and anomaly precision/recall are all evaluated on the public Mall Dataset (results in [§11](#11-testing)).
 
-Constraints that shaped every decision (from [`docs/prd.md`](docs/prd.md)):
+Constraints that shaped every decision:
 
 - **CPU only** — no GPU was available at any point (free-tier hosting)
 - **Upload-based**, not real-time streaming (MVP)
@@ -36,16 +36,15 @@ Constraints that shaped every decision (from [`docs/prd.md`](docs/prd.md)):
 | Frontend | React 18 + TypeScript + Vite | dashboard, canvas, and polling UI; `tsc && vite build` for type-checked builds |
 | Canvas & charts | Fabric.js, Recharts | zone polygons need a real interactive canvas (Streamlit can't do this) |
 | Backend | FastAPI + uvicorn | async I/O around CPU-bound work; automatic OpenAPI docs at `/docs` |
-| Job queue | in-process `threading.Thread` (`app/jobs.py`) | zero-infrastructure local MVP; Redis + RQ stays the deployment target (see §10) |
-| Database | SQLite (`data/shoplens.db`) | relational: zones → analytics → anomalies → reports; Supabase is the deploy target |
-| File storage | local disk (`storage/`) | uploads + heatmap PNGs; Cloudflare R2 is the deploy target |
+| Job queue | in-process `threading.Thread` (`app/jobs.py`) | zero-infrastructure local MVP; swapping to a managed queue later is a `jobs.py` change |
+| Database | SQLite (`data/shoplens.db`) | relational: zones → analytics → anomalies → reports |
+| File storage | local disk (`storage/`) | uploads + heatmap PNGs |
 | Detection | YOLOv8n (`ultralytics`, PyTorch) | fastest CPU-friendly YOLOv8 variant — the whole CV stack is PyTorch, one framework |
-| Tracking | DeepSORT (`deep_sort_realtime`) + OSNet re-ID, embedder on CPU | appearance re-ID keeps IDs stable when people cross paths |
+| Tracking | DeepSORT (`deep_sort_realtime`) + MobileNetV2 re-ID embedder (library default), embedder on CPU | appearance embedding keeps IDs stable when people cross paths |
 | Anomaly ML | PyTorch autoencoder (`4→8→4→2→4→8→4` MLP) + rule classifiers | unsupervised — no labelled anomaly data needed; rules give each flag a human-readable type |
 | LLM | Groq API, `openai/gpt-oss-120b` (OpenAI-compatible, configurable) | free tier, fast, no GPU — Ollama was rejected because the deployment target can't host it |
 | Experiment tracking | MLflow (local `mlruns/`) | one-line proof of real training runs for the mentor (`mlflow ui`) |
 | Eval/training utils | scikit-learn (scaler), pandas-style CSV metrics | reproducible MAE / precision-recall scripts |
-| Screenshot automation | Playwright (`frontend/scripts/screenshots.mjs`) | regenerates every README screenshot in ~40 s |
 
 ## 4. Architecture
 
@@ -71,15 +70,13 @@ React dashboard polls GET /status/{job_id} every 3 s
 
 One upload = one job = one thread that runs the whole pipeline in order. Every step logs its own duration, and progress ("Step N/7") is written to SQLite so the UI can poll it. Zones come **from the database**, not from the video — they're drawn once and reused forever.
 
-> **Current vs planned:** this is the MVP that runs entirely locally. The Redis/RQ queue, Supabase and Cloudflare R2 in [`docs/tech.md`](docs/tech.md) are the deployment targets (roadmap Epic 8 — deferred by decision); nothing in the code requires them yet.
+> **Runs locally by design:** one `uvicorn` process + SQLite + local disk — zero infrastructure, which is what a laptop demo needs. Cloud hosting was optional for the submission and was not attempted.
 
 ## 5. Project Structure
 
 ```
 shoplens/
-├── CLAUDE.md                 instructions for the AI assistant working on this repo
 ├── .env.example              copy to .env; every variable is optional (see §6)
-├── railway.toml              Railway deploy config (prepared, unused — Epic 8)
 ├── backend/
 │   ├── app/
 │   │   ├── main.py           FastAPI app + router registration
@@ -98,16 +95,13 @@ shoplens/
 │   ├── scripts/              reproducible evidence generators (score_labels,
 │   │                         report_prompt_sweep, plot_anomaly_trajectories, ...)
 │   ├── models/               autoencoder.pth, threshold.json, zone_index.json
-│   └── Dockerfile, requirements.txt
+│   └── requirements.txt
 ├── frontend/                 React + Vite + TypeScript
-│   ├── src/components/       ZoneCanvas, Dashboard, Heatmap, ProgressBar, Report
-│   └── scripts/screenshots.mjs   Playwright → docs/screenshots/
+│   └── src/components/       ZoneCanvas, Dashboard, Heatmap, ProgressBar, Report
 ├── notebooks/                Colab: 01_detection, 02_tracking, 03_autoencoder
 ├── data/                     mall frames, labels, generated caches, SQLite DB (git-ignored)
 ├── storage/                  uploaded videos + per-job heatmaps (git-ignored)
-├── docs/                     prd, tech, epics, guide, walkthrough, technical_report,
-│                             evidence/ (CSV, plots, annotated video), screenshots/
-└── supabase/schema.sql       table definitions for the cloud deploy (prepared)
+└── docs/                     evidence/ (CSV, plots, annotated video), screenshots/
 ```
 
 ## 6. Installation & Setup
@@ -162,12 +156,7 @@ Zones drawn for a different store layout? Delete/re-draw them in the Zones tab �
 
 ## 8. Screenshots / Demo
 
-No live demo link — deployment (Epic 8) was deferred by decision, so the app runs locally. The screenshots below are the demo, and they're **regenerated automatically**, not hand-made:
-
-```bash
-node frontend/scripts/screenshots.mjs <completed-job-id>
-# needs backend :8000 + frontend :5173 + at least one completed job
-```
+No live demo link — the app runs locally by design. The screenshots below are the demo:
 
 **1. Upload** — drag in a clip under 2 minutes:
 
@@ -299,12 +288,11 @@ job stays `complete`.
 
 ## 10. Engineering Decisions
 
-**D1 — Local thread + SQLite instead of Redis/RQ + Supabase (for now).**
+**D1 — Local thread + SQLite instead of a managed queue and cloud database.**
 Trade-off: a single process means no horizontal scaling and queue state dies with the
 process (mitigated: `app/jobs.py` resumes/reconciles jobs on restart). What it buys: the
-whole MVP runs with `uvicorn` and zero infra, which is what a local demo needs. The
-roadmap keeps Redis/RQ + Supabase + R2 as deployment targets — `supabase/schema.sql`
-and `railway.toml` are written; the swap is a `jobs.py`/`db.py` change, not a rewrite.
+whole MVP runs with `uvicorn` and zero infra, which is what a local demo needs. Swapping
+to a managed queue later is a `jobs.py`/`db.py` change, not a rewrite.
 
 **D2 — Sample every 5th frame, cap clips at 2 minutes.**
 CPU-only full-frame processing was estimated at 3–5 hours per 2-minute clip. Sampling
@@ -313,7 +301,7 @@ the gap). This is a documented design decision, not an accident — measured cos
 §Performance below.
 
 **D3 — Smallest models that still work on CPU.**
-YOOLOv8n (not s/m/l) and DeepSORT with a CPU OSNet embedder: every model choice trades
+YOLOv8n (not s/m/l) and DeepSORT with a CPU MobileNetV2 embedder: every model choice trades
 accuracy for CPU speed first, because there is no GPU anywhere in the pipeline. The
 consequence is honest and measured (MAE 5.71, §11) rather than hidden.
 
@@ -374,14 +362,17 @@ so the number is continuously reproducible.
 There is **no unit-test suite** — verification is done the way this project is graded:
 reproducible evaluation scripts, live API checks, and automated browser runs.
 
-**Evaluation scripts (the numbers):**
+**Reproduce the numbers — full command map:**
 
-```bash
-cd backend
-python -m evaluation.metrics ../docs/evidence/detection_results.csv   # MAE / RMSE / threshold table
-python scripts/score_labels.py                                        # anomaly precision / recall / F1
-python scripts/report_prompt_sweep.py --live                          # LLM prompt quality, 10 cases
-```
+| claim | command / artifact |
+|---|---|
+| detection MAE/RMSE, threshold table | `cd backend && python -m evaluation.metrics ../docs/evidence/detection_results.csv` |
+| tracking IDs before/after tuning | `notebooks/02_tracking.ipynb` + `docs/evidence/tracking_annotated.mp4` |
+| anomaly precision/recall/F1 | `cd backend && python scripts/score_labels.py` (labels: `data/labels/samples.csv`) |
+| anomaly trajectory plot | `python backend/scripts/plot_anomaly_trajectories.py` → `docs/evidence/anomaly_trajectories.png` |
+| autoencoder training + threshold | `cd backend && python training/train_autoencoder.py` → MLflow run (`mlflow ui --backend-store-uri mlruns`) |
+| LLM prompt sweep (10 cases) | `python backend/scripts/report_prompt_sweep.py --live` |
+| pipeline timing | any upload, then the `pipeline finished …` line in the backend log |
 
 | metric | result |
 |---|---|
@@ -400,18 +391,12 @@ python scripts/report_prompt_sweep.py --live                          # LLM prom
   `Processing failed: Video is corrupted or unreadable` (evidence:
   `docs/evidence/corrupt_video_ui.png`); mid-API-restart job state survives; report
   failure leaves the job `complete`
-- Browser regression: `node frontend/scripts/screenshots.mjs` exercises upload → zones →
-  progress → dashboard → heatmap → anomalies → report in one Playwright run — if it
-  completes, the UI renders end-to-end (and it refreshes §8's screenshots)
-
-Reproduce the full training/eval story via the command map in
-[`docs/technical_report.md` §8](docs/technical_report.md).
 
 ## 12. Limitations & Future Improvements
 
 **Honest limitations:**
 
-1. **Detection MAE 5.71 vs the PRD target of < 3** — crowd-dense, occluded frames
+1. **Detection MAE 5.71 vs the target of < 3** — crowd-dense, occluded frames
    dominate the error, and the best confidence threshold is 0.10. See
    `docs/evidence/failure_cases.png`.
 2. **Anomaly precision 0.419** — ~58 % of flags on the 86-visit labelled set were false
@@ -426,20 +411,20 @@ Reproduce the full training/eval story via the command map in
    three labels come from thresholds on top of it.
 6. **LLM depends on the Groq free tier** — rate limits and model availability are out of
    our control (mitigated: configurable model, and the job survives report failures).
-7. **No deployment** — runs locally on one machine; Supabase/R2/Railway wiring is
-   prepared but unexecuted (roadmap Epic 8, deferred by decision).
+7. **No deployment** — runs locally on one machine (hosting was optional for the
+   submission and was not attempted).
 8. **No real-time alerts** (email/WebSockets) — MVP flags anomalies in the dashboard and
    report only.
 
 **Next improvements, in order of value:**
 
-1. Execute the deployment (Epic 8): Supabase + R2 + Railway, then re-run §11's checks on
-   the live URL
+1. Deploy it: containerize the backend and add managed storage, then re-run §11's
+   checks on a live URL
 2. Calibrate anomaly thresholds on labelled examples; collect more than 86 labels
 3. Wire `count_id_switches` into `evaluation/metrics.py` for a true IDSW number
 4. Real-time anomaly alerts via email; period-over-period comparison ("this week vs last")
 5. Re-run detection with a counting-aware head or per-camera threshold tuning to push
-   MAE below the PRD target
+   MAE below target
 
 ---
 
@@ -447,10 +432,5 @@ Reproduce the full training/eval story via the command map in
 
 | file | what's in it |
 |---|---|
-| [`docs/prd.md`](docs/prd.md) | problem, target user, success metrics |
-| [`docs/tech.md`](docs/tech.md) | every stack choice with a one-line reason |
-| [`docs/epics.md`](docs/epics.md) | 10-week roadmap — daily checklist + Definitions of Done |
-| [`docs/technical_report.md`](docs/technical_report.md) | mentor report: datasets, models, results, limitations |
-| [`docs/code_walkthrough.md`](docs/code_walkthrough.md) | annotated code explanation for the mentor |
-| [`docs/shoplens_guide.md`](docs/shoplens_guide.md) | Epic 1–2 walkthrough (detection + tracking) |
 | [`docs/evidence/`](docs/evidence/) | evaluation CSV, plots, annotated video, failure evidence |
+| [`docs/screenshots/`](docs/screenshots/) | full-page UI captures used in §8 |
